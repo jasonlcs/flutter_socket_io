@@ -2,6 +2,7 @@ package com.itsclicking.clickapp.fluttersocketio;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -122,7 +123,11 @@ public class SocketIO {
             _handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    _methodChannel.invokeMethod(getId() + "|" + _statusCallback + "|" + _statusCallback, status);
+                    try {
+                        _methodChannel.invokeMethod(getId() + "|" + _statusCallback + "|" + _statusCallback, status);
+                    } catch(Exception e) {
+                        Utils.log(TAG, status + ": " + e.toString());
+                    }
                 }
             });
         }
@@ -207,7 +212,6 @@ public class SocketIO {
     }
 
     public void sendMessage(String event, String message, final String callback) {
-
         if (Utils.isNullOrEmpty(event) || Utils.isNullOrEmpty(message)) {
             Utils.log("sendMessage", "Invalid params: event or message is NULL or EMPTY!");
         } else if (isConnected()) {
@@ -228,7 +232,6 @@ public class SocketIO {
                 });
             }
         }
-
     }
 
     public void subscribe(String event, final String callback) {

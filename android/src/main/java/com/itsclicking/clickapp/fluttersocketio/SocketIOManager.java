@@ -1,5 +1,8 @@
 package com.itsclicking.clickapp.fluttersocketio;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,54 +74,85 @@ public class SocketIOManager implements ISocketIOManager {
     }
 
     @Override
-    public void init(MethodChannel channel, String domain, String namespace, String query, String callback) {
-        if(isExistedSocketIO(getSocketId(domain, namespace))) {
-            Utils.log(TAG, "socket: " + getSocketId(domain, namespace) + " already existed!");
-        } else {
-            SocketIO socketIO = createSocketIO(channel, domain, namespace, query, callback);
-            addSocketIO(socketIO);
-            socketIO.init();
-        }
+    public void init(final MethodChannel channel, final String domain, final String namespace, final String query, final String callback) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(isExistedSocketIO(getSocketId(domain, namespace))) {
+                    Utils.log(TAG, "socket: " + getSocketId(domain, namespace) + " already existed!");
+                } else {
+                    SocketIO socketIO = createSocketIO(channel, domain, namespace, query, callback);
+                    addSocketIO(socketIO);
+                    socketIO.init();
+                }
+            }
+        });
     }
 
     @Override
-    public void connect(String domain, String namespace) {
-        SocketIO socketIO = getSocket(getSocketId(domain, namespace));
-        if(socketIO != null) {
-            socketIO.connect();
-        } else {
-            Utils.log(TAG, "socket: " + getSocketId(domain, namespace) + " is not initialized!");
-        }
+    public void connect(final String domain, final String namespace) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SocketIO socketIO = getSocket(getSocketId(domain, namespace));
+                if(socketIO != null) {
+                    socketIO.connect();
+                } else {
+                    Utils.log(TAG, "socket: " + getSocketId(domain, namespace) + " is not initialized!");
+                }
+            }
+        });
     }
 
     @Override
-    public void sendMessage(String domain, String namespace, String event, String message, String callback) {
-        SocketIO socketIO = getSocket(getSocketId(domain, namespace));
-        if(socketIO != null) {
-            socketIO.sendMessage(event, message, callback);
-        } else {
-            Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
-        }
+    public void sendMessage(final String domain, final String namespace, final String event, final String message, final String callback) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SocketIO socketIO = getSocket(getSocketId(domain, namespace));
+                if(socketIO != null) {
+                    Utils.log(TAG, "Sending Message...");
+                    socketIO.sendMessage(event, message, callback);
+                } else {
+                    Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
+                }
+            }
+        });
     }
 
     @Override
-    public void subscribes(String domain, String namespace, Map<String, String> subscribes) {
-        SocketIO socketIO = getSocket(getSocketId(domain, namespace));
-        if(socketIO != null) {
-            socketIO.subscribes(subscribes);
-        } else {
-            Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
-        }
+    public void subscribes(final String domain, final String namespace, final Map<String, String> subscribes) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SocketIO socketIO = getSocket(getSocketId(domain, namespace));
+                if(socketIO != null) {
+                    socketIO.subscribes(subscribes);
+                } else {
+                    Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
+                }
+            }
+        });
     }
 
     @Override
-    public void unSubscribes(String domain, String namespace, Map<String, String> subscribes) {
-        SocketIO socketIO = getSocket(getSocketId(domain, namespace));
-        if(socketIO != null) {
-            socketIO.unSubscribes(subscribes);
-        } else {
-            Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
-        }
+    public void unSubscribes(final String domain, final String namespace, final Map<String, String> subscribes) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SocketIO socketIO = getSocket(getSocketId(domain, namespace));
+                if(socketIO != null) {
+                    socketIO.unSubscribes(subscribes);
+                } else {
+                    Utils.log(TAG, " not found socket: " + getSocketId(domain, namespace));
+                }
+            }
+        });
     }
 
     @Override
@@ -160,17 +194,23 @@ public class SocketIOManager implements ISocketIOManager {
 
     @Override
     public void destroyAllSockets() {
-        if(!Utils.isNullOrEmpty(mSockets)) {
-            for(Map.Entry<String, SocketIO> item : mSockets.entrySet()) {
-                if(item != null) {
-                    SocketIO socket = item.getValue();
-                    if(socket != null) {
-                        socket.destroy();
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(!Utils.isNullOrEmpty(mSockets)) {
+                    for(Map.Entry<String, SocketIO> item : mSockets.entrySet()) {
+                        if(item != null) {
+                            SocketIO socket = item.getValue();
+                            if(socket != null) {
+                                socket.destroy();
+                            }
+                        }
                     }
+                    mSockets.clear();
                 }
             }
-            mSockets.clear();
-        }
+        });
     }
 
     public static class MethodCallArgumentsName {
