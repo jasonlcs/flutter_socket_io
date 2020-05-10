@@ -83,8 +83,8 @@ public class Utils {
     }
 
     public static void log(String tag, String text) {
-        if (BuildConfig.DEBUG) {
+//        if (BuildConfig.DEBUG) {
             Log.d("FlutterSocketIoPlugin: " + tag, text);
-        }
+//        }
     }
 }
